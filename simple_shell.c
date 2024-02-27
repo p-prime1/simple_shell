@@ -2,6 +2,43 @@
 #define MAX 1024
 
 /**
+ * build_path - Builds the path
+ * @argv: Pointer to argv
+ * Return: Returns the built path on success or NULL on error
+ */
+
+char *build_path(char ***argv)
+{
+	char *temp_env;
+	char *token;
+	char *path;
+
+	temp_env = strdup(getenv("PATH"));
+	if (temp_env != NULL)
+	{
+		token = strtok(temp_env, ":");
+		while (token != NULL)
+		{
+			path = malloc(strlen(token) + strlen(*argv[0]) + 2);
+			strcpy(path, token);
+			strcat(path, "/");
+			strcat(path, *argv[0]);
+			if (access(path, F_OK) == 0)
+			{
+				free(temp_env);
+				return (path);
+			}
+			else
+			{
+				token = strtok(NULL, ":");
+				free(path);
+			}
+		}
+	}
+	free(temp_env);
+	return (NULL);
+}
+/**
  * getcomm - Reads the command from the command line
  * Return: Return 0 on success and -1 on error
  */
@@ -29,10 +66,11 @@ char  *getcomm(void)
  * Return: Return 0 on success and -1 on failure
  */
 
-int exec_comm(char *const *argv)
+int exec_comm(char **argv)
 {
 	pid_t pid;
 	int status;
+	char *a;
 
 	pid = fork();
 	if (pid == -1)
@@ -42,21 +80,28 @@ int exec_comm(char *const *argv)
 	}
 	if (pid == 0)
 	{
-		if (access(argv[0], F_OK) != -1)
-			execve(argv[0], argv, environ);
-		else
+		if (argv[0][0] != '/')
 		{
-			perror("Command does not exist");
-			exit(EXIT_FAILURE);
+			a = build_path(&argv);
+			if (a == NULL)
+			{
+				perror("Command doent exist ");
+				exit(EXIT_FAILURE);
+			}
 		}
+		else
+			a = strdup(argv[0]);
+		if (execve(a, argv, environ) == -1)
+		{
+			perror("Execve ");
+			return (-1);
+		}
+		free(a);
 	}
 	else
 	{
 		wait(&status);
-		if (WIFEXITED(status))
-			return (WEXITSTATUS(status));
-		else
-			return (-1);
+
 	}
 	return (0);
 }
@@ -71,9 +116,9 @@ int main(void)
 	int i, j, k;
 	char *lineptr, *token, **argv;
 
-	i = 0;
 	while (1)
 	{
+		i = 0;
 		printf("($) ");
 		lineptr = getcomm();
 		argv = malloc(sizeof(char *) * (MAX + 1));
@@ -102,8 +147,8 @@ int main(void)
 		{
 			free(argv[k]);
 		}
-		free(argv);
 		free(token);
+		free(argv);
 	}
 	return (0);
 }

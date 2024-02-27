@@ -10,7 +10,7 @@
 #include <errno.h>
 
 extern char **environ;
-int exec_comm(char *const *argv);
+int exec_comm(char **argv);
 char *get_comm(void);
 
 
