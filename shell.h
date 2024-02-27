@@ -9,6 +9,8 @@
 #include <sys/wait.h>
 
 extern char **environ;
+int exec_comm(char *const *argv);
+char *get_comm(void);
 
 
 #endif
