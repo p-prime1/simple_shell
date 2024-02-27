@@ -17,7 +17,7 @@ char  *getcomm(void)
 	read = getline(&lineptr, &n, stdin);
 	if (read == -1)
 	{
-		perror("Getline ");
+		perror("EOF: ");
 		return (NULL);
 	}
 	return (lineptr);
@@ -41,13 +41,24 @@ int exec_comm(char *const *argv)
 		return (-1);
 	}
 	if (pid == 0)
-		execve(argv[0], argv, environ);
+	{
+		if (access(argv[0], F_OK) != -1)
+			execve(argv[0], argv, environ);
+		else
+		{
+			perror("Command does not exist");
+			exit(EXIT_FAILURE);
+		}
+	}
 	else
 	{
 		wait(&status);
+		if (WIFEXITED(status))
+			return (WEXITSTATUS(status));
+		else
+			return (-1);
 	}
 	return (0);
-
 }
 
 /**
@@ -57,13 +68,15 @@ int exec_comm(char *const *argv)
 
 int main(void)
 {
-	int i, j;
-	char *lineptr, *token, *argv[MAX];
+	int i, j, k;
+	char *lineptr, *token, **argv;
 
+	i = 0;
 	while (1)
 	{
 		printf("($) ");
 		lineptr = getcomm();
+		argv = malloc(sizeof(char *) * (MAX + 1));
 		token = strtok(lineptr, "\n");
 		while (token != NULL)
 		{
@@ -82,11 +95,15 @@ int main(void)
 		{
 			perror("Execve ");
 			return (-1);
-			continue;
 		}
+		free(lineptr);
+		argv[0] = NULL;
+		for (k = 0; argv[k] != NULL; k++)
+		{
+			free(argv[k]);
+		}
+		free(argv);
+		free(token);
 	}
-	free(lineptr);
-	free(argv);
-	free(token);
 	return (0);
 }
