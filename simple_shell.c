@@ -43,13 +43,14 @@ char *build_path(char ***argv)
  * Return: Return 0 on success and -1 on error
  */
 
-char  *getcomm(void)
+char  **getcomm(void)
 {
-	char  *lineptr;
-	size_t n;
+	char  *lineptr, *token, **argv;
+	size_t n, i;
 	ssize_t read;
 
 	n = 0;
+	i = 0;
 	lineptr = NULL;
 	read = getline(&lineptr, &n, stdin);
 	if (read == -1)
@@ -57,7 +58,21 @@ char  *getcomm(void)
 		perror("EOF: ");
 		return (NULL);
 	}
-	return (lineptr);
+	argv = malloc(sizeof(char *) * (MAX + 1));
+	token = strtok(lineptr, "\n");
+	while (token != NULL)
+	{
+		argv[i] = strdup(token);
+		if (argv[i] == NULL)
+		{
+			perror("Strdup ");
+			return (NULL);
+		}
+		token = strtok(NULL, " ");
+		i++;
+	}
+	argv[i] = NULL;
+	return (argv);
 }
 
 /**
@@ -101,7 +116,6 @@ int exec_comm(char **argv)
 	else
 	{
 		wait(&status);
-
 	}
 	return (0);
 }
@@ -113,41 +127,24 @@ int exec_comm(char **argv)
 
 int main(void)
 {
-	int i, j, k;
-	char *lineptr, *token, **argv;
+	int k;
+	char **argv;
 
 	while (1)
 	{
-		i = 0;
 		printf("($) ");
-		lineptr = getcomm();
-		argv = malloc(sizeof(char *) * (MAX + 1));
-		token = strtok(lineptr, "\n");
-		while (token != NULL)
+		argv = getcomm();
+		if (strcmp(argv[0], "exit") == 0)
+			_exit(0);
+		else
 		{
-			argv[i] = strdup(token);
-			if (argv[i] == NULL)
-			{
-				perror("Strdup ");
-				return (-1);
-			}
-			token = strtok(NULL, " ");
-			i++;
+			exec_comm(argv);
 		}
-		argv[i] = NULL;
-		j = exec_comm(argv);
-		if (j == -1)
-		{
-			perror("Execve ");
-			return (-1);
-		}
-		free(lineptr);
 		argv[0] = NULL;
 		for (k = 0; argv[k] != NULL; k++)
 		{
 			free(argv[k]);
 		}
-		free(token);
 		free(argv);
 	}
 	return (0);
