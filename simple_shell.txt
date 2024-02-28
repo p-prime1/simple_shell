@@ -1,0 +1,16 @@
+Handle cases where by a path isnt specified
+
+
+Using Dereference the Pointer to char and check for '/'
+If it isnt call a function that adds the path pass the argv as an argument
+
+Function to create path (path_build(char **argv))
+Function accepts pointer to strings
+Since it isnt advisable to modify the environ var
+Declare a pointer and assign a call to getenv("PATH") 
+Using strtok tokenize the environ with :
+Assign the result to a variable
+Using the first argument constenate it
+Then use access to check if the file exist if it doesnt tokenize again all this inside a loop
+If the file exist return the concatenated path
+Else return Null to signal that the command doesnt exist
