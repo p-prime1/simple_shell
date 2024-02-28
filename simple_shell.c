@@ -1,19 +1,23 @@
 #include "shell.h"
 #define MAX 1024
 
+/**
+ * print_env - Handles the env command
+ */
 void print_env(void)
 {
-    char **env;
-    int i;
+	int i;
+	char **env;
 
-    env = environ;
-    i = 0;
-    while (env[i] != NULL)
-    {
-        printf("%s\n", env[i]);
-        i++;
-    }
+	env = environ;
+	i = 0;
+	while (env[i] != NULL)
+	{
+		printf("%s\n", env[i]);
+		i++;
+	}
 }
+
 /**
  * build_path - Builds the path
  * @argv: Pointer to argv
