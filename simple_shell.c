@@ -1,6 +1,19 @@
 #include "shell.h"
 #define MAX 1024
 
+void print_env(void)
+{
+    char **env;
+    int i;
+
+    env = environ;
+    i = 0;
+    while (env[i] != NULL)
+    {
+        printf("%s\n", env[i]);
+        i++;
+    }
+}
 /**
  * build_path - Builds the path
  * @argv: Pointer to argv
@@ -106,6 +119,11 @@ int exec_comm(char **argv)
 		}
 		else
 			a = strdup(argv[0]);
+		if (strcmp(a, "env") == 0)
+		{
+			print_env();
+			return (0);
+		}
 		if (execve(a, argv, environ) == -1)
 		{
 			perror("Execve ");
