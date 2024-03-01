@@ -102,7 +102,6 @@ int exec_comm(char **argv)
 {
 	pid_t pid;
 	int status;
-	char *a;
 
 	pid = fork();
 	if (pid == -1)
@@ -114,26 +113,23 @@ int exec_comm(char **argv)
 	{
 		if (argv[0][0] != '/')
 		{
-			a = build_path(&argv);
-			if (a == NULL)
+			argv[0] = build_path(&argv);
+			if (argv[0] == NULL)
 			{
 				perror("Command doent exist ");
 				exit(EXIT_FAILURE);
 			}
 		}
-		else
-			a = strdup(argv[0]);
-		if (strcmp(a, "env") == 0)
+		if (strcmp(argv[0], "env") == 0)
 		{
 			print_env();
 			return (0);
 		}
-		if (execve(a, argv, environ) == -1)
+		if (execve(argv[0], argv, environ) == -1)
 		{
 			perror("Execve ");
 			return (-1);
 		}
-		free(a);
 	}
 	else
 	{
