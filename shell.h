@@ -12,6 +12,7 @@
 extern char **environ;
 int exec_comm(char **argv);
 char *get_comm(void);
-
+int exit_comm(char *comm);
+char *my_getline();
 
 #endif
