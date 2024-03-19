@@ -12,6 +12,7 @@
 extern char **environ;
 int exec_comm(char **argv);
 char *get_comm(void);
-
+void print_env(void);
+char *_strtok(char *str, const char *delim);
 
 #endif
